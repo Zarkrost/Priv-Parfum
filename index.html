@@ -1214,10 +1214,15 @@ function onSearch(val) {
 }
 
 // ─── Dialog ───────────────────────────────────────────────────────────────────
+let _dialogCallbacks = {};
+
 function showDialog(title, sub, buttons) {
-  let btns = buttons.map(b =>
-    `<button class="btn ${b.cls}" onclick="(${b.action.toString()})()" style="margin-bottom:8px">${b.label}</button>`
-  ).join('');
+  _dialogCallbacks = {};
+  let btns = buttons.map((b, i) => {
+    const cbKey = 'cb' + i;
+    _dialogCallbacks[cbKey] = b.action;
+    return `<button class="btn ${b.cls}" onclick="_dialogCallbacks['${cbKey}']()" style="margin-bottom:8px">${b.label}</button>`;
+  }).join('');
   document.getElementById('dialog').innerHTML = `
     <div class="dialog-title">${title}</div>
     <div class="dialog-sub">${sub}</div>
