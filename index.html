@@ -716,7 +716,7 @@
 
 <script>
 // ─── Config ───────────────────────────────────────────────────────────────────
-const BACKEND = 'const BACKEND = 'http://91.98.124.54:8000'; // ← cambiar por tu URL de Cloudflare Tunnel
+const BACKEND = 'http://91.98.124.54:8000'; // ← cambiar por tu URL de Cloudflare Tunnel
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const tg = window.Telegram.WebApp;
@@ -856,20 +856,31 @@ function renderBrands(query = '') {
   }
 
   if (query && items.length === 0) {
-    // Buscar directamente en productos
     renderSearchResults(query);
     return;
   }
 
-  let html = `<div class="section-title">${query ? 'Resultados' : 'Marcas'}</div>
+  const container = document.getElementById('main');
+  container.innerHTML = `
+    <div class="section-title">${query ? 'Resultados' : 'Marcas'}</div>
     <div class="section-sub">${items.length} marca${items.length !== 1 ? 's' : ''} disponible${items.length !== 1 ? 's' : ''}</div>
-    <div class="brand-list fade-in">`;
+    <div class="brand-list fade-in" id="brandList"></div>`;
 
-  for (const { brand, bi } of items) {
-    const n = brandCartCount(bi);
-    const hasItems = n > 0;
-    html += `
-      <div class="brand-card ${hasItems ? 'has-items' : ''}" onclick="showBrand(${bi})">
+  const list = document.getElementById('brandList');
+  const BATCH = 20;
+  let idx = 0;
+
+  function renderBatch() {
+    const fragment = document.createDocumentFragment();
+    const end = Math.min(idx + BATCH, items.length);
+    for (; idx < end; idx++) {
+      const { brand, bi } = items[idx];
+      const n = brandCartCount(bi);
+      const hasItems = n > 0;
+      const el = document.createElement('div');
+      el.className = `brand-card ${hasItems ? 'has-items' : ''}`;
+      el.onclick = () => showBrand(bi);
+      el.innerHTML = `
         <div>
           <div class="brand-name">${brand.b}</div>
           <div class="brand-meta">${brand.p.length} referencias</div>
@@ -877,12 +888,14 @@ function renderBrands(query = '') {
         <div style="display:flex;align-items:center;gap:8px">
           ${hasItems ? `<span class="brand-badge">×${n}</span>` : ''}
           <span class="brand-arrow">›</span>
-        </div>
-      </div>`;
+        </div>`;
+      fragment.appendChild(el);
+    }
+    list.appendChild(fragment);
+    if (idx < items.length) requestAnimationFrame(renderBatch);
   }
 
-  html += '</div>';
-  setMain(html);
+  requestAnimationFrame(renderBatch);
 }
 
 function renderSearchResults(query) {
