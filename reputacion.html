@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Reputación · Privé Parfum</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root{
+    --fondo:#0f0e0c; --tarjeta:#1b1916; --tarjeta2:#24211d; --linea:#34302a;
+    --oro:#c9a45c; --oro2:#e8cf96; --plata:#bebec4; --bronce:#c48054;
+    --texto:#f0ece4; --texto2:#a09a90; --verde:#7ebe6e; --rojo:#de6860;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--fondo);color:var(--texto);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:18px 16px 40px}
+  .marca{text-align:center;color:var(--oro);letter-spacing:.35em;font:13px Georgia,serif;margin:4px 0 2px}
+  .marca+hr{width:60px;border:0;border-top:1px solid var(--oro);margin:8px auto 10px}
+  h1{font:600 24px Georgia,serif;text-align:center;margin:0 0 16px}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--tarjeta);border-radius:12px;padding:4px;margin-bottom:14px}
+  .tabs button{background:none;border:0;color:var(--texto2);padding:9px;border-radius:9px;font-size:14px}
+  .tabs button.on{background:var(--tarjeta2);color:var(--oro2)}
+  input[type=search]{width:100%;background:var(--tarjeta);border:1px solid var(--linea);color:var(--texto);border-radius:12px;padding:12px 14px;font-size:15px;outline:none}
+  input[type=search]:focus{border-color:var(--oro)}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0 6px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{white-space:nowrap;border:1px solid var(--linea);background:none;color:var(--texto2);border-radius:20px;padding:6px 13px;font-size:13px}
+  .chip.on{border-color:var(--oro);color:var(--oro2);background:rgba(201,164,92,.08)}
+  .lista{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+  .card{display:flex;align-items:center;gap:12px;background:var(--tarjeta);border:1px solid transparent;border-radius:14px;padding:12px;cursor:pointer}
+  .card:active{border-color:var(--oro)}
+  .av{flex:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 19px Georgia,serif;border:2px solid var(--linea);color:var(--texto2);background:var(--fondo)}
+  .av.oro{border-color:var(--oro);color:var(--oro)} .av.plata{border-color:var(--plata);color:var(--plata)} .av.bronce{border-color:var(--bronce);color:var(--bronce)}
+  .info{flex:1;min-width:0}
+  .nombre{font-weight:600;display:flex;align-items:center;min-width:0}
+  .nombre .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .nombre .pill{flex:none}
+  .secs{color:var(--texto2);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;border:1px solid var(--oro);color:var(--oro);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+  .pill.conf{border-color:var(--verde);color:var(--verde)}
+  .pct{text-align:right;font-weight:700;font-size:17px}
+  .pct small{display:block;font-weight:400;font-size:11.5px;color:var(--texto2)}
+  .vacio{text-align:center;color:var(--texto2);padding:40px 10px}
+  /* Ficha */
+  .ficha{background:var(--tarjeta);border-radius:18px;padding:22px 18px;text-align:center}
+  .ficha .av{width:78px;height:78px;font-size:34px;margin:0 auto 10px;border-width:3px}
+  .ficha .nombre{font-size:20px;justify-content:center}
+  .badges{margin:6px 0 14px}
+  .badges .pill{margin:0 3px}
+  .grande{font:700 44px Georgia,serif;color:var(--verde);line-height:1.1}
+  .grande.nuevo{font-size:22px;color:var(--oro2);padding:10px 0}
+  .barra{height:8px;border-radius:5px;background:rgba(222,104,96,.45);overflow:hidden;margin:10px 0 16px}
+  .barra div{height:100%;background:var(--verde)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .stats div{background:var(--fondo);border-radius:10px;padding:10px 4px}
+  .stats b{display:block;font-size:19px}
+  .stats span{font-size:11.5px;color:var(--texto2)}
+  .meta{font-size:12.5px;color:var(--texto2);margin-top:12px}
+  .pregunta{text-align:center;margin:22px 0 12px;font:600 18px Georgia,serif}
+  .votar{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .votar button{border:1.5px solid var(--linea);background:var(--tarjeta);color:var(--texto);border-radius:16px;padding:18px 8px;font-size:17px;font-weight:600}
+  .votar button .ico{display:block;font-size:30px;margin-bottom:4px}
+  .votar .bien:active,.votar .bien.sel{border-color:var(--verde);background:rgba(126,190,110,.12)}
+  .votar .mal:active,.votar .mal.sel{border-color:var(--rojo);background:rgba(222,104,96,.12)}
+  .votar button:disabled{opacity:.45}
+  .nota{text-align:center;font-size:12.5px;color:var(--texto2);margin-top:12px}
+  .aviso{background:rgba(201,164,92,.1);border:1px solid rgba(201,164,92,.35);color:var(--oro2);border-radius:12px;padding:12px;text-align:center;margin-top:16px;font-size:14px}
+  .error{background:rgba(222,104,96,.12);border-color:rgba(222,104,96,.4);color:#f2b0aa}
+  /* Éxito */
+  .exito{text-align:center;padding:60px 10px}
+  .exito .circulo{width:96px;height:96px;border-radius:50%;border:3px solid var(--verde);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:46px;color:var(--verde);animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+  .exito.rev .circulo{border-color:var(--oro);color:var(--oro)}
+  .exito h2{font:600 22px Georgia,serif;margin:0 0 6px}
+  .exito p{color:var(--texto2);margin:0}
+  @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+  /* Ranking */
+  .fila{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px}
+  .fila:nth-child(odd){background:var(--tarjeta)}
+  .puesto{width:26px;text-align:center;font:700 18px Georgia,serif;color:var(--texto2)}
+  .p1{color:var(--oro)} .p2{color:var(--plata)} .p3{color:var(--bronce)}
+  .tend{width:22px;text-align:center;font-size:12px}
+  .t-sube{color:var(--verde)} .t-baja{color:var(--rojo)} .t-igual{color:var(--texto2)} .t-nuevo{color:var(--oro);font-size:9px;font-weight:700}
+  .cargando{text-align:center;color:var(--texto2);padding:40px}
+</style>
+</head>
+<body>
+<div class="marca">PRIVÉ PARFUM</div><hr>
+<h1 id="titulo">Reputación de vendedores</h1>
+<div id="app"><div class="cargando">Cargando…</div></div>
+
+<script>
+const API = "https://api.priveparfum.xyz/rep/api";   // ← tu backend
+const tg = window.Telegram.WebApp;
+tg.ready(); tg.expand();
+try { tg.setHeaderColor("#0f0e0c"); tg.setBackgroundColor("#0f0e0c"); } catch (e) {}
+
+const $app = document.getElementById("app");
+const estado = { tab: "valorar", seccion: tg.initDataUnsafe?.start_param || "", q: "", secciones: {} };
+const NOMBRE_SEC = { ventas: "Ventas/Cambio", pro: "Ventas Pro", splits: "Splits/Decants" };
+const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const inicial = v => esc((v.username || v.nombre || "?").replace("@","").charAt(0).toUpperCase());
+const vib = t => { try { tg.HapticFeedback.notificationOccurred(t); } catch (e) {} };
+const toque = () => { try { tg.HapticFeedback.impactOccurred("light"); } catch (e) {} };
+
+async function api(ruta, opciones = {}) {
+  const r = await fetch(API + ruta, {
+    ...opciones,
+    headers: { "Content-Type": "application/json", "X-Init-Data": tg.initData, ...(opciones.headers || {}) }
+  });
+  const datos = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(datos.detail || "Error de conexión");
+  return datos;
+}
+
+function pills(v) {
+  let h = "";
+  if (v.pro) h += `<span class="pill">PRO ✔</span>`;
+  if (v.confianza) h += `<span class="pill conf">CONFIANZA</span>`;
+  return h;
+}
+
+function pctHtml(v) {
+  if (v.porcentaje === null) return `<div class="pct" style="color:var(--oro2);font-size:13px">Nuevo<small>${v.total} votos</small></div>`;
+  return `<div class="pct" style="color:${v.porcentaje >= 90 ? "var(--verde)" : v.porcentaje >= 70 ? "var(--oro2)" : "var(--rojo)"}">${v.porcentaje}%<small>${v.total} votos</small></div>`;
+}
+
+function pestañas() {
+  return `<div class="tabs">
+    <button class="${estado.tab === "valorar" ? "on" : ""}" onclick="irTab('valorar')">Valorar</button>
+    <button class="${estado.tab === "ranking" ? "on" : ""}" onclick="irTab('ranking')">Ranking semana</button>
+  </div>`;
+}
+
+function irTab(t) { toque(); estado.tab = t; t === "valorar" ? pintarLista() : pintarRanking(); }
+
+// ── Lista de vendedores ─────────────────────────────────
+let temporizador;
+async function pintarLista(soloResultados = false) {
+  tg.BackButton.hide();
+  document.getElementById("titulo").textContent = "Reputación de vendedores";
+  if (!soloResultados) {
+    const chips = [["", "Todas"], ...Object.entries(NOMBRE_SEC)]
+      .map(([k, n]) => `<button class="chip ${estado.seccion === k ? "on" : ""}" onclick="filtrar('${k}')">${n}</button>`).join("");
+    $app.innerHTML = pestañas() +
+      `<input type="search" id="buscar" placeholder="Buscar @usuario" value="${esc(estado.q)}" autocomplete="off">
+       <div class="chips">${chips}</div><div class="lista" id="lista"><div class="cargando">Cargando…</div></div>`;
+    document.getElementById("buscar").addEventListener("input", e => {
+      clearTimeout(temporizador);
+      temporizador = setTimeout(() => { estado.q = e.target.value.trim(); pintarLista(true); }, 300);
+    });
+  }
+  const $lista = document.getElementById("lista");
+  try {
+    const p = new URLSearchParams();
+    if (estado.seccion) p.set("seccion", estado.seccion);
+    if (estado.q) p.set("q", estado.q);
+    const d = await api("/vendedores?" + p);
+    if (!d.vendedores.length) {
+      $lista.innerHTML = `<div class="vacio">No hay vendedores ${estado.q ? "con ese nombre" : "en esta sección"} todavía.</div>`;
+      return;
+    }
+    $lista.innerHTML = d.vendedores.map(v => `
+      <div class="card" onclick="abrirFicha(${v.user_id})">
+        <div class="av ${v.nivel.clave}">${inicial(v)}</div>
+        <div class="info">
+          <div class="nombre"><span class="n">${esc(v.visible)}</span>${v.pro ? '<span class="pill">PRO ✔</span>' : v.confianza ? '<span class="pill conf">CONFIANZA</span>' : ""}</div>
+          <div class="secs">${v.nivel.clave !== "nuevo" ? v.nivel.nombre + " · " : ""}${v.secciones.map(s => NOMBRE_SEC[s]).join(" · ")}</div>
+        </div>
+        ${pctHtml(v)}
+      </div>`).join("");
+  } catch (e) {
+    $lista.innerHTML = `<div class="aviso error">${esc(e.message)}</div>`;
+  }
+}
+
+function filtrar(s) { toque(); estado.seccion = s; pintarLista(); }
+
+// ── Ficha y voto ─────────────────────────────────────────
+async function abrirFicha(id) {
+  toque();
+  tg.BackButton.show();
+  tg.BackButton.onClick(volver);
+  $app.innerHTML = `<div class="cargando">Cargando…</div>`;
+  try {
+    const d = await api("/vendedor/" + id);
+    pintarFicha(d);
+  } catch (e) {
+    $app.innerHTML = `<div class="aviso error">${esc(e.message)}</div>`;
+  }
+}
+
+function volver() { tg.BackButton.offClick(volver); pintarLista(); }
+
+function pintarFicha({ vendedor: v, mi_voto, es_yo }) {
+  document.getElementById("titulo").textContent = "Ficha del vendedor";
+  const desde = new Date(v.desde * 1000);
+  const grande = v.porcentaje === null
+    ? `<div class="grande nuevo">Nuevo vendedor</div>`
+    : `<div class="grande" style="color:${v.porcentaje >= 90 ? "var(--verde)" : v.porcentaje >= 70 ? "var(--oro2)" : "var(--rojo)"}">${v.porcentaje}%</div>
+       <div class="meta" style="margin:0">valoraciones positivas</div>`;
+  const barra = v.total ? `<div class="barra"><div style="width:${Math.round(100 * v.positivos / v.total)}%"></div></div>` : `<div style="height:16px"></div>`;
+  const siguiente = v.nivel.siguiente ? ` · ${v.nivel.siguiente - v.positivos} para ${v.nivel.siguiente_nombre}` : "";
+
+  let zonaVoto;
+  if (es_yo) {
+    zonaVoto = `<div class="aviso">Esta es tu ficha. No puedes votarte a ti mismo.</div>`;
+  } else if (mi_voto) {
+    zonaVoto = `<div class="pregunta">¿Qué tal tu compra?</div>
+      <div class="votar">
+        <button class="bien ${mi_voto.valor === 1 ? "sel" : ""}" disabled><span class="ico">👍</span>Bien</button>
+        <button class="mal ${mi_voto.valor === -1 ? "sel" : ""}" disabled><span class="ico">👎</span>Mal</button>
+      </div>
+      <div class="nota">Ya le votaste. Podrás volver a votarle en ${mi_voto.puede_repetir_en_dias} día${mi_voto.puede_repetir_en_dias === 1 ? "" : "s"}.</div>`;
+  } else {
+    zonaVoto = `<div class="pregunta">¿Qué tal tu compra?</div>
+      <div class="votar">
+        <button class="bien" onclick="votar(${v.user_id}, 1, this)"><span class="ico">👍</span>Bien</button>
+        <button class="mal" onclick="votar(${v.user_id}, -1, this)"><span class="ico">👎</span>Mal</button>
+      </div>
+      <div class="nota">Tu voto es anónimo. Nadie del grupo sabrá qué has votado.</div>
+      <div id="msg"></div>`;
+  }
+
+  $app.innerHTML = `
+    <div class="ficha">
+      <div class="av ${v.nivel.clave}">${inicial(v)}</div>
+      <div class="nombre">${esc(v.visible)}</div>
+      <div class="badges">${pills(v)}${v.nivel.clave !== "nuevo" ? `<span class="pill" style="border-color:var(--linea);color:var(--texto2)">${v.nivel.nombre.toUpperCase()}</span>` : ""}</div>
+      ${grande}
+      ${barra}
+      <div class="stats">
+        <div><b style="color:var(--verde)">${v.positivos}</b><span>bien</span></div>
+        <div><b style="color:var(--rojo)">${v.negativos}</b><span>mal</span></div>
+        <div><b style="color:var(--oro)">${v.semanas_top}</b><span>semanas top 3</span></div>
+      </div>
+      <div class="meta">En el grupo desde ${MESES[desde.getMonth()]} ${desde.getFullYear()}${siguiente}</div>
+      <div class="meta">${v.secciones.map(s => NOMBRE_SEC[s]).join(" · ")}</div>
+    </div>
+    ${zonaVoto}`;
+}
+
+async function votar(id, valor, boton) {
+  document.querySelectorAll(".votar button").forEach(b => b.disabled = true);
+  boton.classList.add("sel");
+  try {
+    const d = await api("/votar", { method: "POST", body: JSON.stringify({ vendedor_id: id, valor }) });
+    vib("success");
+    tg.BackButton.offClick(volver); tg.BackButton.hide();
+    const revision = d.estado === "pendiente";
+    $app.innerHTML = `<div class="exito ${revision ? "rev" : ""}">
+      <div class="circulo">${revision ? "⏳" : "✓"}</div>
+      <h2>${revision ? "Voto enviado" : "Voto registrado"}</h2>
+      <p>${revision ? "Los admins lo revisarán antes de que cuente." : "Gracias por ayudar a la comunidad."}</p>
+    </div>`;
+    setTimeout(() => pintarLista(), 1800);
+  } catch (e) {
+    vib("error");
+    document.querySelectorAll(".votar button").forEach(b => { b.disabled = false; b.classList.remove("sel"); });
+    document.getElementById("msg").innerHTML = `<div class="aviso error">${esc(e.message)}</div>`;
+  }
+}
+
+// ── Ranking provisional ──────────────────────────────────
+async function pintarRanking() {
+  tg.BackButton.hide();
+  $app.innerHTML = pestañas() + `<div id="rk"><div class="cargando">Cargando…</div></div>`;
+  const $rk = document.getElementById("rk");
+  try {
+    const d = await api("/ranking");
+    if (!d.ranking.length) { $rk.innerHTML = `<div class="vacio">Aún no hay votos esta semana.</div>`; return; }
+    const T = { sube: "▲", baja: "▼", igual: "–", nuevo: "NUEVO" };
+    $rk.innerHTML = `<div class="nota" style="margin:0 0 10px">Últimos 7 días · se publica el domingo a las 21:00</div>` +
+      d.ranking.map(r => `
+      <div class="fila" onclick="abrirFicha(${r.user_id})">
+        <div class="puesto p${r.puesto}">${r.puesto}</div>
+        <div class="info"><div class="nombre"><span class="n">${esc(r.visible)}</span>${r.pro ? '<span class="pill">PRO</span>' : ""}</div></div>
+        <div style="font-weight:700;color:var(--verde)">👍 ${r.pos}</div>
+        ${r.neg ? `<div style="font-weight:700;color:var(--rojo)">👎 ${r.neg}</div>` : ""}
+        <div class="tend t-${r.tendencia}">${T[r.tendencia]}</div>
+      </div>`).join("");
+  } catch (e) {
+    $rk.innerHTML = `<div class="aviso error">${esc(e.message)}</div>`;
+  }
+}
+
+if (!tg.initData) {
+  $app.innerHTML = `<div class="aviso">Abre esta página desde el botón del grupo de Telegram.</div>`;
+} else {
+  pintarLista();
+}
+</script>
+</body>
+</html>
