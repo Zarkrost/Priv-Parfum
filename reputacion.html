@@ -93,7 +93,7 @@ try { tg.setHeaderColor("#f6f0e6"); tg.setBackgroundColor("#f6f0e6"); } catch (e
 
 const $app = document.getElementById("app");
 const estado = { tab: "valorar", seccion: tg.initDataUnsafe?.start_param || "", q: "", secciones: {} };
-const NOMBRE_SEC = { ventas: "Ventas/Cambio", pro: "Ventas Pro", splits: "Splits/Decants" };
+const NOMBRE_SEC = { ventas: "Ventas/Cambio", pro: "Ventas Pro", splits: "Splits/Decants", rifas: "Rifas", subastas: "Subastas" };
 const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
